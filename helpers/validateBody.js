@@ -1,16 +1,13 @@
-//validateBody
-const HttpError = require('./HttpError.js');
+const validateBody = schema => (req, res, next) => {
+  const { error } = schema.validate(req.body);
 
-const validateBody = schema => {
-  const func = (req, _, next) => {
-    const { error } = schema.validate(req.body);
-    if (error) {
-      return HttpError(400, error.message);
-    }
-    next();
-  };
+  if (error) {
+    console.error('Validation error:', error.details);
+    // відправлення відповіді з кодом 400 і деталями помилки
+    return res.status(400).json({ message: error.details[0].message });
+  }
 
-  return func;
+  next();
 };
 
 module.exports = { validateBody };

@@ -15,7 +15,6 @@ const errorWrapper = fn => {
       const statusCode = error.status || 500;
       const errorMessage = error.message || messageList[statusCode] || 'Internal Server Error';
       res.status(statusCode).json({ message: errorMessage });
-      // next(error);
     }
   };
 
