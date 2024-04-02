@@ -35,10 +35,9 @@ const deleteContact = errorWrapper(async (req, res, next) => {
 
 // POST /api/contacts => createContact - створює новий контакт
 const createContact = errorWrapper(async (req, res, next) => {
-  validateBody(req, res, next);
   const name = req.body.name.replace(/[^a-zA-Z0-9]/g, '');
   if (name !== req.body.name) {
-    return next(new HttpError(400, `Invalid name: ${name}`));
+    return HttpError(400, `Invalid name: ${name}`);
   }
   const newContact = await contactsService.addContact(req.body);
   res.status(201).json(newContact);

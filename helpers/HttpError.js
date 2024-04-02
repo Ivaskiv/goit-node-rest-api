@@ -6,10 +6,10 @@ const messageList = {
   409: 'Conflict',
 };
 // ф-я, яка створює об'єкт помилки з HTTP статусом і повідомленням
-function HttpError(status, message = messageList[status]) {
+const HttpError = (status, message = messageList[status]) => {
   const error = new Error(message);
   error.status = status;
   return error;
-}
+};
 
 module.exports = HttpError;
