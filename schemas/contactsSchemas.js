@@ -13,10 +13,7 @@ const createContactSchema = Joi.object({
 
 const updateContactSchema = Joi.object({
   name: Joi.string().min(3).max(30).trim(),
-  email: Joi.string().email({
-    minDomainSegments: 2,
-    tlds: { allow: ['com', 'net'] },
-  }),
+  email: Joi.string().email(),
   phone: Joi.string(),
 });
 
