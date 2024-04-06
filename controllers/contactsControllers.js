@@ -1,7 +1,7 @@
 const HttpError = require('../helpers/HttpError.js');
-const { errorWrapper } = require('../helpers/errorWrapper.js');
 const contactsService = require('../services/contactsServices.js');
 const Contact = require('../models/contactModel.js');
+const { errorWrapper } = require('../helpers/errorWrapper.js');
 
 // GET /api/contacts => getAllContacts - список усіх контактів
 const getAllContacts = errorWrapper(async (req, res, next) => {
