@@ -1,63 +1,61 @@
-const { v4: uuidv4 } = require('uuid');
-const path = require('path');
-const fs = require('fs').promises;
+const mongoose = require('mongoose');
+const Contact = require('../models/contactModel.js');
 
-const contactsPath = path.join(__dirname, '..', 'db', 'contacts.json');
-
-async function ensureFileExists(contactsPath) {
+async function listContacts() {
   try {
-    await fs.access(contactsPath);
+    const contacts = await Contact.find({});
+    console.log('Contacts retrieved successfully:', contacts);
+    return contacts;
   } catch (error) {
-    if (error.code === 'ENOENT') {
-      await fs.writeFile(contactsPath, '[]');
-    } else {
-      throw error;
-    }
+    console.error('Error retrieving contacts:', error);
+    throw error;
   }
 }
 
-async function listContacts() {
-  await ensureFileExists(contactsPath);
-  const data = await fs.readFile(contactsPath, 'utf8');
-  return JSON.parse(data);
-}
+async function getContactById(id) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new Error('Invalid ObjectId');
+  }
+  const contact = await Contact.findById(id);
 
-async function getContactById(contactId) {
-  const contacts = await listContacts();
-  const contact = contacts.find(({ id }) => id === contactId) || null;
-  return contact || null;
+  if (!contact) {
+    throw new Error('Contact not found');
+  }
+
+  return contact;
 }
 
 async function removeContact(contactId) {
-  let contacts = await listContacts();
-  const filteredContacts = contacts.filter(contact => contact.id !== contactId);
-
-  if (contacts.length !== filteredContacts.length) {
-    contacts = filteredContacts;
-    await fs.writeFile(contactsPath, JSON.stringify(filteredContacts, null, 2));
-    return { message: 'Contact deleted successfully', code: 200, contacts };
-  } else {
-    return { message: 'Contact not found', code: 404 };
+  const deletedContact = await Contact.findByIdAndDelete(contactId);
+  if (!deletedContact) {
+    return { code: 404, message: 'Contact not found' };
   }
+  return { code: 200, message: 'Contacts deleted successfully', contact: deletedContact };
 }
 
 async function addContact({ name, email, phone }) {
-  const contacts = await listContacts();
-  const newContact = { id: uuidv4(), name, email, phone };
-  contacts.push(newContact);
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+  const newContact = new Contact({ name, email, phone });
+  await newContact.save();
   return newContact;
 }
 
 async function updateContactById(id, updateData) {
-  const contacts = await listContacts();
-  const contactIndex = contacts.findIndex(contact => contact.id === id);
-  if (contactIndex === -1) {
-    return null;
-  }
-  contacts[contactIndex] = { ...contacts[contactIndex], ...updateData };
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-  return contacts[contactIndex];
+  //
+  const updateContact = await Contact.findByIdAndUpdate(id, updateData, { new: true });
+  return updateContact;
 }
 
-module.exports = { listContacts, getContactById, removeContact, addContact, updateContactById };
+async function updateStatusContact(contactId, body) {
+  const { favorite } = body;
+  const updateContact = await Contact.findByIdAndUpdate(contactId, { favorite }, { new: true });
+  return updateContact;
+}
+
+module.exports = {
+  listContacts,
+  getContactById,
+  removeContact,
+  addContact,
+  updateContactById,
+  updateStatusContact,
+};

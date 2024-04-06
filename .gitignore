@@ -6,6 +6,7 @@
 .pnp.js
 /.eslint
 /.prettier
+/.env
 
 # testing
 /coverage
