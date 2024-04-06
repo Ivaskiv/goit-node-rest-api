@@ -40,7 +40,6 @@ async function addContact({ name, email, phone }) {
 }
 
 async function updateContactById(id, updateData) {
-  //
   const updateContact = await Contact.findByIdAndUpdate(id, updateData, { new: true });
   return updateContact;
 }
