@@ -1,5 +1,3 @@
-//db.js
-//!===================================
 const mongoose = require('mongoose');
 
 async function connectDB() {
@@ -14,7 +12,7 @@ async function connectDB() {
     console.log('The connection to MongoDB is successful');
   } catch (error) {
     console.error('Error connecting to MongoDB', error.message);
-    process.exit(1); //зупинити процес в разі невдачі
+    process.exit(1);
   }
 }
 
