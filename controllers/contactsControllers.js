@@ -1,7 +1,10 @@
+const mongoose = require('mongoose');
+
 const HttpError = require('../helpers/HttpError.js');
 const contactsService = require('../services/contactsServices.js');
 const Contact = require('../models/contactModel.js');
 const { errorWrapper } = require('../helpers/errorWrapper.js');
+const { updateFavoriteSchema } = require('../schemas/contactsSchemas.js');
 
 // GET /api/contacts => getAllContacts - список усіх контактів
 const getAllContacts = errorWrapper(async (req, res, next) => {
@@ -12,17 +15,30 @@ const getAllContacts = errorWrapper(async (req, res, next) => {
 // GET /api/contacts/:id => getOneContact - отримує контакт за його ID
 const getOneContact = errorWrapper(async (req, res, next) => {
   const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new HttpError(400, 'Invalid contact ID');
+  }
+
   const contact = await contactsService.getContactById(id);
+
   if (!contact) {
     throw new HttpError(404, 'Contact not found');
   }
+
   res.status(200).json(contact);
 });
 
 // DELETE /api/contacts/:id => deleteContact - видаляє контакт за його ID
 const deleteContact = errorWrapper(async (req, res, next) => {
   const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new HttpError(400, 'Invalid contact ID');
+  }
+
   const result = await contactsService.removeContact(id);
+
   if (result.code === 200) {
     res.status(200).json({ message: 'Contact deleted successfully', contacts: result });
   } else {
@@ -38,13 +54,20 @@ const createContact = errorWrapper(async (req, res, next) => {
     contact: newContact,
   });
 });
+
 // PUT /api/contacts/:id => updateContactHandler - оновлює контакт за його ідентифікатором
 const updateContactHandler = errorWrapper(async (req, res, next) => {
   const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new HttpError(400, 'Invalid contact ID');
+  }
+
   const result = await contactsService.updateContactById(id, req.body);
   if (!result) {
     throw new HttpError(404, 'Contact not found');
   }
+
   res.status(200).json(result);
 });
 
@@ -52,6 +75,13 @@ const updateContactHandler = errorWrapper(async (req, res, next) => {
 const updateContactFavorite = errorWrapper(async (req, res, next) => {
   const { contactId } = req.params;
   const { favorite } = req.body;
+
+  const { error } = updateFavoriteSchema.validate(req.body);
+
+  if (error) {
+    throw new HttpError(400, error.details[0].message);
+  }
+
   if (favorite === undefined) throw new HttpError(400, 'Favorite status must be provided');
 
   const existingContact = await contactsService.getContactById(contactId);
@@ -63,7 +93,7 @@ const updateContactFavorite = errorWrapper(async (req, res, next) => {
   const updatedContact = await contactsService.updateStatusContact(contactId, { favorite });
 
   if (!updatedContact) {
-    return res.status(404).json({ message: 'Contact not found' });
+    throw new HttpError(404, 'Contact not found');
   }
 
   return res.status(200).json(updatedContact);

@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Joi = require('joi');
 
 const phonePattern = /^\(\d{3}\) \d{3}-\d{4}$/;
@@ -11,6 +12,10 @@ const createContactSchema = Joi.object({
     })
     .required(),
   phone: Joi.string().pattern(phonePattern).required(),
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
 });
 
 const updateContactSchema = Joi.object({
@@ -22,7 +27,12 @@ const updateContactSchema = Joi.object({
   }),
 });
 
+const updateFavoriteSchema = Joi.object({
+  favorite: Joi.boolean().required(),
+});
+
 module.exports = {
   createContactSchema,
   updateContactSchema,
+  updateFavoriteSchema,
 };

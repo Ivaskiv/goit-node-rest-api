@@ -1,4 +1,6 @@
+const mongoose = require('mongoose');
 const express = require('express');
+
 const { validateBody } = require('../helpers/validateBody.js');
 const {
   getAllContacts,
