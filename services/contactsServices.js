@@ -4,7 +4,7 @@ const Contact = require('../models/contactModel.js');
 async function listContacts() {
   try {
     const contacts = await Contact.find({});
-    console.log('Contacts retrieved successfully:');
+    console.log('Contacts retrieved successfully');
     return contacts;
   } catch (error) {
     console.error('Error retrieving contacts:', error);

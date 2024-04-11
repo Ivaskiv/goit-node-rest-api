@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
-
+const Contact = require('../models/contactModel.js');
 const HttpError = require('../helpers/HttpError.js');
 const contactsService = require('../services/contactsServices.js');
-const Contact = require('../models/contactModel.js');
 const { errorWrapper } = require('../helpers/errorWrapper.js');
 const { updateFavoriteSchema } = require('../schemas/contactsSchemas.js');
 
@@ -34,15 +33,15 @@ const deleteContact = errorWrapper(async (req, res, next) => {
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new HttpError(400, 'Invalid contact ID');
+    return res.status(400).json({ message: 'Invalid contact ID' });
   }
 
   const result = await contactsService.removeContact(id);
 
   if (result.code === 200) {
-    res.status(200).json({ message: 'Contact deleted successfully', contacts: result });
+    res.status(200).json({ message: 'Contact deleted successfully', contacts: result.contact });
   } else {
-    throw new HttpError(result.code, result.message);
+    res.status(404).json({ message: 'Not found' });
   }
 });
 
