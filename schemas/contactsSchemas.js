@@ -1,7 +1,6 @@
+//contactSchema.js
 const mongoose = require('mongoose');
 const Joi = require('joi');
-
-const phonePattern = /^\(\d{3}\) \d{3}-\d{4}$/;
 
 const createContactSchema = Joi.object({
   name: Joi.string().min(3).max(30).trim().required(),
@@ -11,7 +10,8 @@ const createContactSchema = Joi.object({
       tlds: { allow: ['com', 'net'] },
     })
     .required(),
-  phone: Joi.string().pattern(phonePattern).required(),
+  phone: Joi.string().required(),
+  //owner - посилання на користувача, який створив контакт.
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -19,12 +19,18 @@ const createContactSchema = Joi.object({
 });
 
 const updateContactSchema = Joi.object({
-  name: Joi.string().min(3).max(30).trim(),
-  phone: Joi.string().pattern(phonePattern),
-  email: Joi.string().email({
-    minDomainSegments: 2,
-    tlds: { allow: ['com', 'net'] },
+  name: Joi.string().min(3).max(30).trim().optional(),
+  phone: Joi.string().pattern(/^\d+$/).when('$isPhoneProvided', {
+    is: true,
+    then: Joi.required(), //телефон буде обов'язковим, якщо він переданий
+    otherwise: Joi.optional(), //в іншому випадку, валідація буде пропущена
   }),
+  email: Joi.string()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ['com', 'net'] },
+    })
+    .optional(),
 });
 
 const updateFavoriteSchema = Joi.object({

@@ -1,3 +1,4 @@
+//app.js
 const mongoose = require('mongoose');
 const Contact = require('./models/contactModel.js');
 const express = require('express');
@@ -38,7 +39,11 @@ app.use((_, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   res.status(500).json({ message: 'Server error' });
+// });
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Server error' });
+  console.error(err);
+  res.status(err.status || 500).json({ message: err.message || 'Server error' });
 });

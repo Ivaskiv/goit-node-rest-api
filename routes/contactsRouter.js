@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+//contactsRouter.js
 const express = require('express');
 
 const { validateBody } = require('../helpers/validateBody.js');
@@ -19,9 +19,9 @@ contactsRouter.get('/', getAllContacts);
 contactsRouter.get('/:id', getOneContact);
 
 contactsRouter.delete('/:id', deleteContact);
-
+//!
 contactsRouter.post('/', validateBody(createContactSchema), createContact);
-
+//!
 contactsRouter.put('/:id', validateBody(updateContactSchema), updateContactHandler);
 
 contactsRouter.patch('/:contactId/favorite', updateContactFavorite);

@@ -1,3 +1,4 @@
+//validateBody.js
 const validateBody = schema => (req, res, next) => {
   const { error } = schema.validate(req.body);
 
