@@ -19,22 +19,12 @@ const createContactSchema = Joi.object({
 });
 
 const updateContactSchema = Joi.object({
-  name: Joi.string().min(3).max(30).trim().optional(),
-  phone: Joi.string().pattern(/^\d+$/).when('$isPhoneProvided', {
-    is: true,
-    then: Joi.required(), //телефон буде обов'язковим, якщо він переданий
-    otherwise: Joi.optional(), //в іншому випадку, валідація буде пропущена
+  name: Joi.string().min(3).max(30).trim(),
+  email: Joi.string().email({
+    minDomainSegments: 2,
+    tlds: { allow: ['com', 'net'] },
   }),
-  email: Joi.string()
-    .email({
-      minDomainSegments: 2,
-      tlds: { allow: ['com', 'net'] },
-    })
-    .optional(),
-});
-
-const updateFavoriteSchema = Joi.object({
-  favorite: Joi.boolean().required(),
+  phone: Joi.string(),
 });
 
 module.exports = {
