@@ -1,81 +1,63 @@
-//contactsServices.js
-const mongoose = require('mongoose');
-const Contact = require('../models/contactModel.js');
-const {
-  updateContactSchema,
-  createContactSchema,
-  updateFavoriteSchema,
-} = require('../schemas/contactsSchemas.js');
-const { validateBody } = require('../helpers/validateBody.js');
+const { v4: uuidv4 } = require('uuid');
+const path = require('path');
+const fs = require('fs').promises;
 
-async function listContacts() {
+const contactsPath = path.join(__dirname, '..', 'db', 'contacts.json');
+
+async function ensureFileExists(contactsPath) {
   try {
-    const contacts = await Contact.find({});
-    console.log('Contacts retrieved successfully');
-    return contacts;
+    await fs.access(contactsPath);
   } catch (error) {
-    console.error('Error retrieving contacts:', error);
-    throw error;
+    if (error.code === 'ENOENT') {
+      await fs.writeFile(contactsPath, '[]');
+    } else {
+      throw error;
+    }
   }
 }
 
-async function getContactById(id) {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new Error('Invalid contact ID');
-  }
-  const contact = await Contact.findById(id);
+async function listContacts() {
+  await ensureFileExists(contactsPath);
+  const data = await fs.readFile(contactsPath, 'utf8');
+  return JSON.parse(data);
+}
 
-  if (!contact) {
-    throw Error('Not found');
-  }
-
-  return contact;
+async function getContactById(contactId) {
+  const contacts = await listContacts();
+  const contact = contacts.find(({ id }) => id === contactId) || null;
+  return contact || null;
 }
 
 async function removeContact(contactId) {
-  const deletedContact = await Contact.findByIdAndDelete(contactId);
-  if (!deletedContact) {
-    return { code: 404, message: 'Not found' };
+  let contacts = await listContacts();
+  const filteredContacts = contacts.filter(contact => contact.id !== contactId);
+
+  if (contacts.length !== filteredContacts.length) {
+    contacts = filteredContacts;
+    await fs.writeFile(contactsPath, JSON.stringify(filteredContacts, null, 2));
+    return { message: 'Contact deleted successfully', code: 200, contacts };
+  } else {
+    return { message: 'Contact not found', code: 404 };
   }
-  return { code: 200, message: 'Contacts deleted successfully', contact: deletedContact };
 }
 
-async function addContact(contactData) {
-  validateBody(contactData, createContactSchema);
-  const newContact = new Contact(contactData);
-  await newContact.save();
+async function addContact({ name, email, phone }) {
+  const contacts = await listContacts();
+  const newContact = { id: uuidv4(), name, email, phone };
+  contacts.push(newContact);
+  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
   return newContact;
 }
 
 async function updateContactById(id, updateData) {
-  if (Object.keys(updateData).length === 0) {
-    throw Error('Body must have at least one field');
+  const contacts = await listContacts();
+  const contactIndex = contacts.findIndex(contact => contact.id === id);
+  if (contactIndex === -1) {
+    return null;
   }
-  validateBody(updateData, updateContactSchema);
-  const contact = await Contact.findById(id);
-  if (!contact) {
-    throw new HttpError(404, 'Not found');
-  }
-  const updateContact = await Contact.findByIdAndUpdate(id, updateData, { new: true });
-  return updateContact;
+  contacts[contactIndex] = { ...contacts[contactIndex], ...updateData };
+  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+  return contacts[contactIndex];
 }
 
-async function updateStatusContact(contactId, body) {
-  const { favorite } = body;
-  if (favorite === undefined) throw HttpError(400, 'Favorite status must be provided');
-  validateBody(body, updateFavoriteSchema);
-  const updateContact = await Contact.findByIdAndUpdate(contactId, { favorite }, { new: true });
-  if (!updateContact) {
-    throw Error('Not found');
-  }
-  return updateContact;
-}
-
-module.exports = {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContactById,
-  updateStatusContact,
-};
+module.exports = { listContacts, getContactById, removeContact, addContact, updateContactById };

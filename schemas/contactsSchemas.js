@@ -1,5 +1,3 @@
-//contactSchema.js
-const mongoose = require('mongoose');
 const Joi = require('joi');
 
 const createContactSchema = Joi.object({
@@ -11,24 +9,15 @@ const createContactSchema = Joi.object({
     })
     .required(),
   phone: Joi.string().required(),
-  //owner - посилання на користувача, який створив контакт.
-  owner: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  },
 });
 
 const updateContactSchema = Joi.object({
   name: Joi.string().min(3).max(30).trim(),
-  email: Joi.string().email({
-    minDomainSegments: 2,
-    tlds: { allow: ['com', 'net'] },
-  }),
+  email: Joi.string().email(),
   phone: Joi.string(),
 });
 
 module.exports = {
   createContactSchema,
   updateContactSchema,
-  updateFavoriteSchema,
 };

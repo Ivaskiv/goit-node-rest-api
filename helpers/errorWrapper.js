@@ -1,4 +1,3 @@
-//errorWrapper.js
 const messageList = {
   400: 'Bad Request',
   401: 'Unauthorized',
@@ -22,13 +21,4 @@ const errorWrapper = fn => {
   return ew;
 };
 
-const handleNotFound = (_, res) => {
-  res.status(404).json({ message: 'Route not found' });
-};
-
-const handleServerError = (err, _, res, __) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Server error' });
-};
-
-module.exports = { errorWrapper, handleNotFound, handleServerError };
+module.exports = { errorWrapper };
