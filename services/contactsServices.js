@@ -21,7 +21,7 @@ async function listContacts() {
 
 async function getContactById(id) {
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new Error('Invalid contact ID');
+    throw Error('Invalid contact ID');
   }
   const contact = await Contact.findById(id);
 
@@ -41,6 +41,9 @@ async function removeContact(contactId) {
 }
 
 async function addContact(contactData) {
+  if (Object.keys(contactData).length === 0) {
+    throw Error('Body must have at least one field');
+  }
   validateBody(contactData, createContactSchema);
   const newContact = new Contact(contactData);
   await newContact.save();
@@ -54,7 +57,7 @@ async function updateContactById(id, updateData) {
   validateBody(updateData, updateContactSchema);
   const contact = await Contact.findById(id);
   if (!contact) {
-    throw new HttpError(404, 'Not found');
+    throw HttpError(404, 'Not found');
   }
   const updateContact = await Contact.findByIdAndUpdate(id, updateData, { new: true });
   return updateContact;
