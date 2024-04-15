@@ -1,12 +1,7 @@
 //contactsServices.js
 const mongoose = require('mongoose');
 const Contact = require('../models/contactModel.js');
-const {
-  updateContactSchema,
-  createContactSchema,
-  updateFavoriteSchema,
-} = require('../schemas/contactsSchemas.js');
-const { validateBody } = require('../helpers/validateBody.js');
+const HttpError = require('../helpers/HttpError.js');
 
 async function listContacts() {
   try {
@@ -44,7 +39,6 @@ async function addContact(contactData) {
   if (Object.keys(contactData).length === 0) {
     throw Error('Body must have at least one field');
   }
-  validateBody(contactData, createContactSchema);
   const newContact = new Contact(contactData);
   await newContact.save();
   return newContact;
@@ -54,7 +48,6 @@ async function updateContactById(id, updateData) {
   if (Object.keys(updateData).length === 0) {
     throw Error('Body must have at least one field');
   }
-  validateBody(updateData, updateContactSchema);
   const contact = await Contact.findById(id);
   if (!contact) {
     throw HttpError(404, 'Not found');
@@ -66,7 +59,6 @@ async function updateContactById(id, updateData) {
 async function updateStatusContact(contactId, body) {
   const { favorite } = body;
   if (favorite === undefined) throw HttpError(400, 'Favorite status must be provided');
-  validateBody(body, updateFavoriteSchema);
   const updateContact = await Contact.findByIdAndUpdate(contactId, { favorite }, { new: true });
   if (!updateContact) {
     throw Error('Not found');

@@ -58,17 +58,21 @@ const createContact = errorWrapper(async (req, res, next) => {
 // PUT /api/contacts/:id => updateContactHandler - оновлює контакт за його ідентифікатором
 const updateContactHandler = errorWrapper(async (req, res, next) => {
   const { id } = req.params;
+
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ message: 'Invalid contact ID' });
   }
+
   if (Object.keys(req.body).length === 0) {
     return res.status(400).json({ message: 'Body must have at least one field' });
   }
   const result = await contactsService.updateContactById(id, req.body);
+
   if (!result) {
     return res.status(404).json({ message: 'Not found' });
   }
-  res.status(200).json(result);
+
+  return res.status(200).json(result);
 });
 
 //PATCH /api/contacts/:contactId/favorite - оновлює статус контакту
@@ -76,7 +80,9 @@ const updateContactFavorite = errorWrapper(async (req, res, next) => {
   const { contactId } = req.params;
   const { favorite } = req.body;
 
-  if (favorite === undefined) throw HttpError(400, 'Favorite status must be provided');
+  if (favorite === undefined) {
+    return res.status(400).json({ message: 'Favorite status must be provided' });
+  }
 
   const existingContact = await contactsService.getContactById(contactId);
 
@@ -90,7 +96,7 @@ const updateContactFavorite = errorWrapper(async (req, res, next) => {
     return res.status(404).json({ message: 'Not found' });
   }
 
-  return res.status(200).json(updatedContact);
+  res.status(200).json(updatedContact);
 });
 
 module.exports = {
