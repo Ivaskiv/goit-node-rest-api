@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 async function connectDB() {
   try {
     const uriDb = process.env.MONGODB_URL;
-    if (!uriDb) throw new Error('MongoDB URI is not defined');
+    if (!uriDb) throw Error('MongoDB URI is not defined');
 
     await mongoose.connect(uriDb, {
       useNewUrlParser: true,

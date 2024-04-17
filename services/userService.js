@@ -1,10 +1,15 @@
-//userService.js - цей код відповідає за створення та пошук користувачів у системі = забезпечує функції для створення нових користувачів у системі та пошуку вже існуючих користувачів за їх електронною поштою
+//userService.js - цей код відповідає за створення та пошук користувачів у системі
+//забезпечує функції для створення нових користувачів у системі та
+//пошуку вже існуючих користувачів за їх електронною поштою
 
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
-const createUserService = async userData => {
-  const hashedPassword = await bcrypt.hash(userData.password, 10);
+const createUser = async userData => {
+  const saltRounds = 10;
+  const salt = await bcrypt.genSalt(saltRounds);
+  const hashedPassword = await bcrypt.hash(userData.password, salt);
   const newUser = new User({
     email: userData.email,
     password: hashedPassword,
@@ -17,7 +22,7 @@ const findUserByEmail = async email => {
   return User.findOne({ email });
 };
 
-module.exports = { createUserService, findUserByEmail };
+module.exports = { createUser, findUserByEmail };
 
 //https://mongoosejs.com/docs/queries.html
 //https://www.npmjs.com/package/bcryptjs

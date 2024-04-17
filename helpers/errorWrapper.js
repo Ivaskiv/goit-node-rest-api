@@ -7,7 +7,7 @@ const messageList = {
   409: 'Conflict',
 };
 
-// Функція, яка обробляє помилки і оптимізує код контролера
+// ф-я, яка обробляє помилки і оптимізує код контролера
 const errorWrapper = fn => {
   const ew = async (req, res, next) => {
     try {
