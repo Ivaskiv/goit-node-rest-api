@@ -33,7 +33,7 @@ app.listen(PORT, () => {
 app.use(cors());
 app.use(express.json());
 
-app.use('/users', userRouter);
+app.use('/api/users', userRouter);
 
 // реєстрація маршруту для створення / оновлення токену
 app.post('/api/login', loginUser);
