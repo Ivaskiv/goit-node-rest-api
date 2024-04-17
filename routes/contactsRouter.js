@@ -10,7 +10,11 @@ const {
   updateContactHandler,
   updateContactFavorite,
 } = require('../controllers/contactsControllers.js');
-const { createContactSchema, updateContactSchema } = require('../schemas/contactsSchemas.js');
+const {
+  createContactSchema,
+  updateContactSchema,
+  updateFavoriteSchema,
+} = require('../schemas/contactsSchemas.js');
 
 const contactsRouter = express.Router();
 
@@ -24,6 +28,10 @@ contactsRouter.post('/', validateBody(createContactSchema), createContact);
 //!
 contactsRouter.put('/:id', validateBody(updateContactSchema), updateContactHandler);
 
-contactsRouter.patch('/:contactId/favorite', updateContactFavorite);
+contactsRouter.patch(
+  '/:contactId/favorite',
+  validateBody(updateFavoriteSchema),
+  updateContactFavorite
+);
 
 module.exports = contactsRouter;
