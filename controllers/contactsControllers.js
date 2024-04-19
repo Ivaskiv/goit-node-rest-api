@@ -9,10 +9,6 @@ const { errorWrapper } = require('../helpers/errorWrapper.js');
 const createContact = errorWrapper(async (req, res, next) => {
   const newContact = await contactsService.addContact({ ...req.body, owner: req.user._id });
   return res.status(201).json(newContact);
-
-  if (!newContact) {
-    return res.status(400).json({ message: error.message });
-  }
 });
 
 // GET /api/contacts => getAllContacts - список усіх контактів
@@ -20,6 +16,12 @@ const getAllContacts = errorWrapper(async (req, res, next) => {
   const userId = req.user._id;
   const contacts = await contactsService.listContacts(userId);
   res.status(200).json(contacts);
+  //!
+  const contact = await contactsService.getContactById(id);
+  if (contact.owner.toString() !== req.user._id.toString()) {
+    return next({ status: 401, message: 'Not authorized' });
+  }
+  //!
 });
 
 // GET /api/contacts/:id => getOneContact - отримує контакт за його ID
@@ -37,7 +39,7 @@ const getOneContact = errorWrapper(async (req, res, next) => {
   }
   //!
   if (contact.owner.toString() !== req.user._id.toString()) {
-    return next({ status: 403, message: 'You are not authorized to access this contact' });
+    return next({ status: 401, message: 'Not authorized' });
   }
   //!
 
@@ -58,7 +60,7 @@ const deleteContact = errorWrapper(async (req, res, next) => {
   }
   //!
   if (contact.owner.toString() !== req.user._id.toString()) {
-    return next({ status: 403, message: 'You are not authorized to access this contact' });
+    return next({ status: 401, message: 'Not authorized' });
   }
   //!
 
@@ -89,9 +91,9 @@ const updateContactHandler = errorWrapper(async (req, res, next) => {
     return res.status(404).json({ message: 'Not found' });
   }
   //!
-  // Перевірка власності контакту
+  // перевірка власності контакту
   if (contact.owner.toString() !== req.user._id.toString()) {
-    return res.status(403).json({ message: 'You are not authorized to update this contact' });
+    return res.status(401).json({ message: 'Not authorized' });
   }
   //!
   const result = await contactsService.updateContactById(id, req.body);
@@ -118,10 +120,10 @@ const updateContactFavorite = errorWrapper(async (req, res, next) => {
     return res.status(404).json({ message: 'Not found' });
   }
   //!
-  // Перевірка власності контакту
+  // перевірка власності контакту
   const contact = await contactsService.getContactById(contactId);
   if (contact.owner.toString() !== req.user._id.toString()) {
-    return res.status(403).json({ message: 'You are not authorized to update this contact' });
+    return res.status(401).json({ message: 'Not authorized' });
   }
   //!
   const updatedContact = await contactsService.updateStatusContact(contactId, { favorite });
@@ -142,4 +144,5 @@ module.exports = {
   updateContactFavorite,
 };
 
-//owner - це поле, яке вказує на власника контакту, в базі даних це буде ідентифікатор користувача, який створив цей контакт
+//owner - це поле, яке вказує на власника контакту,
+//в базі даних це буде ідентифікатор користувача, який створив цей контакт
