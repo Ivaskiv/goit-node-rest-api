@@ -3,7 +3,7 @@
 //пошуку вже існуючих користувачів за їх електронною поштою
 
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+// const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
 const createUser = async userData => {

@@ -15,21 +15,23 @@ const {
   updateContactSchema,
   updateFavoriteSchema,
 } = require('../schemas/contactsSchemas.js');
+const { authToken } = require('../helpers/authToken.js');
 
 const contactsRouter = express.Router();
 
-contactsRouter.get('/', getAllContacts);
+contactsRouter.get('/', authToken, getAllContacts);
 
-contactsRouter.get('/:id', getOneContact);
+contactsRouter.get('/:id', authToken, getOneContact);
 
-contactsRouter.delete('/:id', deleteContact);
+contactsRouter.delete('/:id', authToken, deleteContact);
 
-contactsRouter.post('/', validateBody(createContactSchema), createContact);
+contactsRouter.post('/', authToken, validateBody(createContactSchema), createContact);
 
-contactsRouter.put('/:id', validateBody(updateContactSchema), updateContactHandler);
+contactsRouter.put('/:id', authToken, validateBody(updateContactSchema), updateContactHandler);
 
 contactsRouter.patch(
   '/:contactId/favorite',
+  authToken,
   validateBody(updateFavoriteSchema),
   updateContactFavorite
 );

@@ -8,6 +8,7 @@ const messageList = {
 };
 
 // ф-я, яка обробляє помилки і оптимізує код контролера
+
 const errorWrapper = fn => {
   const ew = async (req, res, next) => {
     try {

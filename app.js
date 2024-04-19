@@ -32,7 +32,8 @@ app.listen(PORT, () => {
 
 app.use(cors());
 app.use(express.json());
-
+//!
+app.use(express.static('public'));
 app.use('/api/users', userRouter);
 
 // реєстрація маршруту для створення / оновлення токену
