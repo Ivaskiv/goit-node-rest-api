@@ -4,7 +4,6 @@ const { createUser, findUserByEmail } = require('../services/userService');
 const { generateToken } = require('../services/authService');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
-const gravatar = require('gravatar');
 const path = require('path');
 const User = require('../models/userModel');
 const Jimp = require('jimp');
@@ -18,21 +17,16 @@ const userRegister = async (req, res, next) => {
     if (userExists) {
       return res.status(409).json({ message: 'Email in use' });
     }
-    //!
-    const avatarUrl = gravatar.url(email, { s: '200', r: 'pg', d: 'robohash' });
-    //!
 
     const createNewUser = await createUser({
       email,
       password,
-      avatarUrl,
     });
 
     res.status(201).json({
       user: {
         email: createNewUser.email,
         subscription: createNewUser.subscription,
-        avatarURL: createNewUser.avatarUrl,
       },
     });
   } catch (error) {
@@ -91,34 +85,7 @@ const getCurrentUser = async (req, res, next) => {
   }
 };
 
-const updateAvatar = async (req, res, next) => {
-  try {
-    //
-    if (!req.file) {
-      return res.status(400).json({
-        message: 'No file uploaded',
-      });
-    }
-    //
-    const image = await Jimp.read(req.file.path);
-    await image.resize(250, 250).writeAsync(req.file.path);
-    //
-    const fileName = `${uuidv4()}${path.extname(req.file.originalname)}`;
-    //
-    await fs.rename(req.file.path, path.join(__dirname, '..public/avatars/${filename}'));
-
-    //
-    req.user.avatarURL = `/avatars/${fileName}`;
-    await req.user.save();
-
-    //
-    res.status(200).json({ avatarURL: req.user.avatarURL });
-  } catch (error) {
-    next(error);
-  }
-};
-
-module.exports = { userRegister, loginUser, logoutUser, getCurrentUser, updateAvatar };
+module.exports = { userRegister, loginUser, logoutUser, getCurrentUser };
 
 //https://www.npmjs.com/package/bcrypt
 //https://my-js.org/docs/cheatsheet/jsonwebtoken/
