@@ -1,14 +1,9 @@
 //userController.js
-
 const { createUser, findUserByEmail } = require('../services/userService');
 const { generateToken } = require('../services/authService');
-const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
-const path = require('path');
 const User = require('../models/userModel');
-const Jimp = require('jimp');
 const { depricatedTokens } = require('../helpers/authToken');
-const fs = require('fs').promises;
 
 const userRegister = async (req, res, next) => {
   const { email, password } = req.body;
@@ -59,10 +54,8 @@ const loginUser = async (req, res, next) => {
 const logoutUser = async (req, res, next) => {
   try {
     depricatedTokens.push(req.token);
-    //перевірити чи існує користувач
-    const user = req.user;
     //повернути успішну відповідь 204 No Content
-    res.status(204).send();
+    res.sendStatus(204);
   } catch (error) {
     next(error);
   }

@@ -21,12 +21,14 @@ const authToken = async (req, res, next) => {
     }
     //знайти користувача/отримати з токена id користувача
     const user = await User.findById(decoded.userId);
-    // якщо користувач існує і токен збігається з тим, що знаходиться в базі, записати його дані в req.user і викликати next()
+    if (!user) {
+      throw 'User not found';
+    }
     req.user = user;
     req.token = token;
-    return next();
+    next();
   } catch (error) {
-    return res.status(401).json({ message: 'Not authorized' });
+    res.status(401).json({ message: 'Not authorized' });
   }
 };
 

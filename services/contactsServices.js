@@ -27,8 +27,8 @@ async function getContactById(id) {
   return contact;
 }
 
-async function removeContact(contactId) {
-  const deletedContact = await Contact.findByIdAndDelete(contactId);
+async function removeContact(id) {
+  const deletedContact = await Contact.findByIdAndDelete(id);
   if (!deletedContact) {
     return { code: 404, message: 'Not found' };
   }
