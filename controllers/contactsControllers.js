@@ -26,8 +26,8 @@ module.exports = {
   // DELETE /api/contacts/:id => deleteContact - видаляє контакт за його ID
   deleteContact: errorWrapper(async (req, res, next) => {
     const { id } = req.params;
-    await contactsService.removeContact(id);
-    res.status(200).json({ message: 'Contact deleted successfully' });
+    const deletedContact = await contactsService.removeContact(id);
+    res.status(200).json(deletedContact);
   }),
 
   // PUT /api/contacts/:id => updateContactHandler - оновлює контакт за його ідентифікатором
@@ -39,9 +39,9 @@ module.exports = {
 
   // PATCH /api/contacts/:contactId/favorite - оновлює статус контакту
   updateContactFavorite: errorWrapper(async (req, res, next) => {
-    const { contactId } = req.params;
+    const { id } = req.params;
     const { favorite } = req.body;
-    const updatedContact = await contactsService.updateStatusContact(contactId, { favorite });
+    const updatedContact = await contactsService.updateStatusContact(id, { favorite });
     res.status(200).json(updatedContact);
   }),
 };

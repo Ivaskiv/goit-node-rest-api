@@ -3,7 +3,6 @@
 //пошуку вже існуючих користувачів за їх електронною поштою
 
 const bcrypt = require('bcryptjs');
-// const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
 const createUser = async userData => {
@@ -23,6 +22,3 @@ const findUserByEmail = async email => {
 };
 
 module.exports = { createUser, findUserByEmail };
-
-//https://mongoosejs.com/docs/queries.html
-//https://www.npmjs.com/package/bcryptjs

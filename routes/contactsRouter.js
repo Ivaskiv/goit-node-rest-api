@@ -16,15 +16,15 @@ const {
   updateFavoriteSchema,
 } = require('../schemas/contactsSchemas.js');
 const { authToken } = require('../helpers/authToken.js');
-const checkContactOwnership = require('../helpers/checkContactOwnership.js');
+const getContactAndcheckContactOwnership = require('../helpers/getContactAndcheckContactOwnership.js');
 
 const contactsRouter = express.Router();
 
 contactsRouter.get('/', authToken, getAllContacts);
 
-contactsRouter.get('/:id', authToken, checkContactOwnership, getOneContact);
+contactsRouter.get('/:id', authToken, getContactAndcheckContactOwnership, getOneContact);
 
-contactsRouter.delete('/:id', authToken, checkContactOwnership, deleteContact);
+contactsRouter.delete('/:id', authToken, getContactAndcheckContactOwnership, deleteContact);
 
 contactsRouter.post('/', authToken, validateBody(createContactSchema), createContact);
 
@@ -32,15 +32,15 @@ contactsRouter.put(
   '/:id',
   authToken,
   validateBody(updateContactSchema),
-  checkContactOwnership,
+  getContactAndcheckContactOwnership,
   updateContactHandler
 );
 
 contactsRouter.patch(
-  '/:contactId/favorite',
+  '/:id/favorite',
   authToken,
   validateBody(updateFavoriteSchema),
-  checkContactOwnership,
+  getContactAndcheckContactOwnership,
   updateContactFavorite
 );
 
