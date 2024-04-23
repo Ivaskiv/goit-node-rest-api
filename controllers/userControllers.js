@@ -52,6 +52,3 @@ const getCurrentUser = errorWrapper(async (req, res, next) => {
 });
 
 module.exports = { userRegister, loginUser, logoutUser, getCurrentUser };
-
-//https://www.npmjs.com/package/bcrypt
-//https://my-js.org/docs/cheatsheet/jsonwebtoken/
