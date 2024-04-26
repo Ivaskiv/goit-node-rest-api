@@ -19,18 +19,16 @@ const { authToken } = require('../helpers/authToken.js');
 const getContactAndcheckContactOwnership = require('../helpers/getContactAndcheckContactOwnership.js');
 
 const contactsRouter = express.Router();
+//один раз вказуємо, що всі маршрути потребують авторизації
+contactsRouter.use(authToken);
 
-contactsRouter.get('/', authToken, getAllContacts);
-
-contactsRouter.get('/:id', authToken, getContactAndcheckContactOwnership, getOneContact);
-
-contactsRouter.delete('/:id', authToken, getContactAndcheckContactOwnership, deleteContact);
-
-contactsRouter.post('/', authToken, validateBody(createContactSchema), createContact);
+contactsRouter.get('/', getAllContacts);
+contactsRouter.get('/:id', getContactAndcheckContactOwnership, getOneContact);
+contactsRouter.delete('/:id', getContactAndcheckContactOwnership, deleteContact);
+contactsRouter.post('/', validateBody(createContactSchema), createContact);
 
 contactsRouter.put(
   '/:id',
-  authToken,
   validateBody(updateContactSchema),
   getContactAndcheckContactOwnership,
   updateContactHandler
@@ -38,7 +36,6 @@ contactsRouter.put(
 
 contactsRouter.patch(
   '/:id/favorite',
-  authToken,
   validateBody(updateFavoriteSchema),
   getContactAndcheckContactOwnership,
   updateContactFavorite

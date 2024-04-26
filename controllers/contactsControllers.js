@@ -18,8 +18,7 @@ module.exports = {
 
   // GET /api/contacts/:id => getOneContact - отримує контакт за його ID
   getOneContact: errorWrapper(async (req, res, next) => {
-    const { id } = req.params;
-    const contact = await contactsService.getContactById(id);
+    const contact = req.contact;
     res.status(200).json(contact);
   }),
 
