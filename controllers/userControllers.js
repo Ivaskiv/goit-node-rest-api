@@ -3,12 +3,16 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/userModel');
 const { createUser, findUserByEmail } = require('../services/userService');
 const { generateToken } = require('../services/authService');
-const { depricatedTokens } = require('../helpers/authToken');
 const { errorWrapper } = require('../helpers/errorWrapper');
 
 const userRegister = errorWrapper(async (req, res, next) => {
   const { email, password } = req.body;
 
+  // перевірка, чи існує вже користувач з такою електронною поштою
+  const existingUser = await findUserByEmail(email);
+  if (existingUser) {
+    return res.status(409).json({ message: 'Email in use' });
+  }
   const newUser = await createUser({ email, password });
 
   res.status(201).json({
@@ -29,6 +33,7 @@ const loginUser = errorWrapper(async (req, res, next) => {
   }
   //створення токена
   const token = generateToken({ userId: user._id });
+  await User.findByIdAndUpdate(user._id, { token });
 
   res.status(200).json({
     token,
@@ -37,7 +42,7 @@ const loginUser = errorWrapper(async (req, res, next) => {
 });
 
 const logoutUser = errorWrapper(async (req, res, next) => {
-  depricatedTokens.push(req.token);
+  await User.findByIdAndUpdate(req.user._id, { token: null });
   //повернути успішну відповідь 204 No Content
   res.sendStatus(204);
 });
