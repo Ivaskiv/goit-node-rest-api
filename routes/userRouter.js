@@ -8,6 +8,8 @@ const {
   logoutUser,
   getCurrentUser,
   updateAvatar,
+  verifyUser,
+  resendVerificationEmail,
 } = require('../controllers/userControllers.js');
 const { authToken } = require('../middleware/authToken.js');
 
@@ -24,5 +26,9 @@ userRouter.post('/logout', authToken, logoutUser);
 userRouter.get('/current', authToken, getCurrentUser);
 
 userRouter.patch('/avatars', authToken, upload.single('avatar'), updateAvatar);
+
+userRouter.get('/verify/:verificationToken', verifyUser);
+
+userRouter.post('/verify', resendVerificationEmail);
 
 module.exports = userRouter;
