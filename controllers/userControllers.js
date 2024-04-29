@@ -1,9 +1,11 @@
 //userController.js
+const path = require('path');
 const bcrypt = require('bcryptjs');
 const User = require('../models/userModel');
 const { createUser, findUserByEmail } = require('../services/userService');
 const { generateToken } = require('../services/authService');
 const { errorWrapper } = require('../helpers/errorWrapper');
+const { updateUserAvatar } = require('../services/avatarService');
 
 const userRegister = errorWrapper(async (req, res, next) => {
   const { email, password } = req.body;
@@ -56,7 +58,19 @@ const getCurrentUser = errorWrapper(async (req, res, next) => {
   });
 });
 
-module.exports = { userRegister, loginUser, logoutUser, getCurrentUser };
+const updateAvatar = errorWrapper(async (req, res, next) => {
+  const { file } = req;
+  const userId = req.user._id;
+
+  try {
+    const avatarUrl = await updateUserAvatar(userId, file);
+    res.status(200).json({ avatarUrl });
+  } catch (error) {
+    next(error);
+  }
+});
+
+module.exports = { userRegister, loginUser, logoutUser, getCurrentUser, updateAvatar };
 
 //https://www.npmjs.com/package/bcrypt
 //https://my-js.org/docs/cheatsheet/jsonwebtoken/

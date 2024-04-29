@@ -13,6 +13,7 @@ const createUser = async userData => {
     email: userData.email,
     password: hashedPassword,
     subscription: userData.subscription || 'starter',
+    avatarURL: userData.avatarURL,
   });
   return newUser.save();
 };
@@ -21,4 +22,8 @@ const findUserByEmail = async email => {
   return User.findOne({ email });
 };
 
-module.exports = { createUser, findUserByEmail };
+const updateUserAvatar = async (userId, avatrUrl) => {
+  await User.findByIdAndUpdate(userId, { avatarURL: avatrUrl });
+};
+
+module.exports = { createUser, findUserByEmail, updateUserAvatar };

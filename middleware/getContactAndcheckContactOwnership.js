@@ -1,11 +1,11 @@
-//Middleware checkContactOwnership - для перевірки,
+//middleware checkContactOwnership - для перевірки,
 //чи користувач є власником контакту перед виконанням
 //операцій над контактом
 
 //getContactAndcheckContactOwnership.js
 const mongoose = require('mongoose');
 const contactsService = require('../services/contactsServices.js');
-const { errorWrapper } = require('./errorWrapper.js');
+const { errorWrapper } = require('../helpers/errorWrapper.js');
 
 const getContactAndCheckContactOwnership = errorWrapper(async (req, res, next) => {
   const userId = req.user._id;

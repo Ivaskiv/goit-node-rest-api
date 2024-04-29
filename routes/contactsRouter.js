@@ -1,7 +1,7 @@
 //contactsRouter.js
 const express = require('express');
 
-const { validateBody } = require('../helpers/validateBody.js');
+const { validateBody } = require('../middleware/validateBody.js');
 const {
   getAllContacts,
   getOneContact,
@@ -15,8 +15,8 @@ const {
   updateContactSchema,
   updateFavoriteSchema,
 } = require('../schemas/contactsSchemas.js');
-const { authToken } = require('../helpers/authToken.js');
-const getContactAndcheckContactOwnership = require('../helpers/getContactAndcheckContactOwnership.js');
+const { authToken } = require('../middleware/authToken.js');
+const getContactAndcheckContactOwnership = require('../middleware/getContactAndcheckContactOwnership.js');
 
 const contactsRouter = express.Router();
 //один раз вказуємо, що всі маршрути потребують авторизації
