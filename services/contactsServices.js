@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 const Contact = require('../models/contactModel.js');
 const HttpError = require('../helpers/HttpError.js');
 
-async function listContacts() {
+async function listContacts(userId) {
   try {
-    const contacts = await Contact.find({});
+    const contacts = await Contact.find({ owner: userId });
     console.log('Contacts retrieved successfully');
     return contacts;
   } catch (error) {
@@ -27,12 +27,12 @@ async function getContactById(id) {
   return contact;
 }
 
-async function removeContact(contactId) {
-  const deletedContact = await Contact.findByIdAndDelete(contactId);
+async function removeContact(id) {
+  const deletedContact = await Contact.findByIdAndDelete(id);
   if (!deletedContact) {
-    return { code: 404, message: 'Not found' };
+    throw HttpError(404, 'Contact not found');
   }
-  return { code: 200, message: 'Contacts deleted successfully', contact: deletedContact };
+  return deletedContact;
 }
 
 async function addContact(contactData) {
