@@ -1,5 +1,4 @@
 //userController.js
-const path = require('path');
 const bcrypt = require('bcryptjs');
 const User = require('../models/userModel');
 const { createUser, findUserByEmail } = require('../services/userService');
@@ -61,13 +60,14 @@ const getCurrentUser = errorWrapper(async (req, res, next) => {
 const updateAvatar = errorWrapper(async (req, res, next) => {
   const { file } = req;
   const userId = req.user._id;
+  User;
 
-  try {
-    const avatarUrl = await updateUserAvatar(userId, file);
-    res.status(200).json({ avatarUrl });
-  } catch (error) {
-    next(error);
+  if (!file) {
+    return res.status(400).send('Avatar file is missing. Please attach a file to proceed.');
   }
+
+  const avatarUrl = await updateUserAvatar(userId, file);
+  res.status(200).json({ avatarUrl });
 });
 
 module.exports = { userRegister, loginUser, logoutUser, getCurrentUser, updateAvatar };

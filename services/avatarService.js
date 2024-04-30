@@ -59,7 +59,7 @@ module.exports = {
     fs.unlinkSync(originalPath);
 
     const avatarUrl = `/avatars/${path.basename(newPath)}`;
-    await User.findByIdAndUpdate(userId, { avatarUrl });
+    await User.findByIdAndUpdate(userId, { avatar: avatarUrl });
     return avatarUrl;
   },
 };
