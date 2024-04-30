@@ -40,7 +40,7 @@ const userRegister = errorWrapper(async (req, res, next) => {
   // перевірка, чи існує вже користувач з такою електронною поштою
   const existingUser = await findUserByEmail(email);
   if (existingUser) {
-    return res.status(409).json({ message: 'Email in use' });
+    return res.status(409).json({ message: 'Verification email sent' });
   }
   // генерація унікального токена для верифікації email
   const verificationToken = uuidv4();

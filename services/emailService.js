@@ -2,15 +2,14 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-const { EMAIL_USER, EMAIL_PASSWORD, BASE_URL } = process.env;
+const { MAILTRAP_PASSWORD, BASE_URL, MAILTRAP_USER, MAILTRAP_EMAIL_USER } = process.env;
 // створення транспортера
 const transporter = nodemailer.createTransport({
-  host: 'smtp.meta.ua',
-  port: 465,
-  secure: true,
+  host: 'live.smtp.mailtrap.io',
+  port: 587,
   auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASSWORD,
+    user: MAILTRAP_USER,
+    pass: MAILTRAP_PASSWORD,
   },
 });
 
@@ -18,12 +17,9 @@ const transporter = nodemailer.createTransport({
 // відправлення листа з посиланням для верифікації email
 const sendVerificationEmail = async (email, verificationToken) => {
   const verificationLink = `${BASE_URL}/api/users/verify/${verificationToken}`;
-  //!
-  console.log('emailService', verificationLink);
-
   try {
     const emailOptions = {
-      from: EMAIL_USER,
+      from: MAILTRAP_EMAIL_USER,
       to: email,
       subject: 'Confirm your email address',
       html: `<div>

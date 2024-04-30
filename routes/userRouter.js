@@ -1,7 +1,7 @@
 //userRouter.js
 const express = require('express');
 const { validateBody } = require('../middleware/validateBody.js');
-const { createUserSchema, loginUserSchema } = require('../schemas/userSchema');
+const { createUserSchema, loginUserSchema, verifyUserSchema } = require('../schemas/userSchema');
 const {
   userRegister,
   loginUser,
@@ -27,8 +27,8 @@ userRouter.get('/current', authToken, getCurrentUser);
 
 userRouter.patch('/avatars', authToken, upload.single('avatar'), updateAvatar);
 
-userRouter.get('/verify/:verificationToken', verifyUser);
+userRouter.get('/verify/:verificationToken', validateBody(loginUserSchema), verifyUser);
 
-userRouter.post('/verify', resendVerificationEmail);
+userRouter.post('/verify', validateBody(verifyUserSchema), resendVerificationEmail);
 
 module.exports = userRouter;
