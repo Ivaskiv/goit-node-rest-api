@@ -3,7 +3,6 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const { EMAIL_USER, EMAIL_PASSWORD, BASE_URL } = process.env;
-
 // створення транспортера
 const transporter = nodemailer.createTransport({
   host: 'smtp.meta.ua',
@@ -15,9 +14,10 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+//!Крок 3: Відправка email користувачу з посиланням для верифікації
 // відправлення листа з посиланням для верифікації email
 const sendVerificationEmail = async (email, verificationToken) => {
-  const verificationLink = `${verificationToken}`;
+  const verificationLink = `${BASE_URL}/api/users/verify/${verificationToken}`;
   //!
   console.log('emailService', verificationLink);
 
@@ -27,11 +27,11 @@ const sendVerificationEmail = async (email, verificationToken) => {
       to: email,
       subject: 'Confirm your email address',
       html: `<div>
-               <p>Dear User,</p>
-               <p>Thank you for signing up for an account</p>
-               <p>To complete your registration, please click on the link below:</p>
-               <a href="${verificationLink}">${verificationLink}</a>
-             </div>`,
+        <p>Dear User,</p>
+        <p>Thank you for signing up for an account</p>
+        <p>To complete your registration, please click on the link below:</p>
+        <a href="${verificationLink}">${verificationLink}</a>
+      </div>`,
     };
     console.log('Verification email sent');
 

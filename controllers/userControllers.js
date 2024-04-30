@@ -8,28 +8,51 @@ const { updateUserAvatar } = require('../services/avatarService');
 const { sendVerificationEmail } = require('../services/emailService');
 const { v4: uuidv4 } = require('uuid');
 
-const BASE_URL = process.env.BASE_URL;
+const { BASE_URL } = process.env;
 
+//!Крок 2: Створення ендпоінта для верифікації email
+const verifyUser = errorWrapper(async (req, res, next) => {
+  const { verificationToken } = req.params;
+
+  if (!verificationToken) {
+    return res.status(400).json({ message: 'Missing verification token' });
+  }
+  // знайти користувача за токеном верифікації
+  const user = await User.findOne({ verificationToken });
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+  // якщо користувач вже пройшов верифікацію, повернути помилку
+  if (user.verify) {
+    return res.status(400).json({ message: 'Verification has already been passed' });
+  }
+  // встановити verificationToken в null і verify в true
+  user.verify = true;
+  user.verificationToken = null;
+  await user.save();
+  // повернути успішну відповідь
+  return res.status(200).json({ message: 'Verification successful' });
+});
+
+//!Крок 3: Відправка email користувачу з посиланням для верифікації
 const userRegister = errorWrapper(async (req, res, next) => {
   const { email, password } = req.body;
-
   // перевірка, чи існує вже користувач з такою електронною поштою
   const existingUser = await findUserByEmail(email);
   if (existingUser) {
     return res.status(409).json({ message: 'Email in use' });
   }
-
   // генерація унікального токена для верифікації email
   const verificationToken = uuidv4();
-
   const newUser = await createUser({ email, password, verificationToken });
-
-  // відправити лист з посиланням для верифікації email
-  const verificationLink = `${BASE_URL}/verify/${verificationToken}`;
   //!
-  console.log('userController', verificationLink);
-
-  await sendVerificationEmail(newUser.email, verificationLink);
+  // встановлення токену в об'єкт користувача
+  //"створити verificationToken для користувача і записати його в БД"
+  newUser.verificationToken = verificationToken;
+  await newUser.save();
+  //!
+  // відправити лист з посиланням для верифікації email
+  await sendVerificationEmail(email, verificationToken);
 
   res.status(201).json({
     user: {
@@ -37,6 +60,34 @@ const userRegister = errorWrapper(async (req, res, next) => {
       subscription: newUser.subscription,
     },
   });
+});
+
+//!Крок 4: Повторна відправка email користувачу з посиланням для верифікації
+const resendVerificationEmail = errorWrapper(async (req, res, next) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Missing required field: email' });
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  if (user.verify) {
+    return res.status(400).json({ message: 'Verification has already been passed' });
+  }
+  // перевірка, чи у користувача вже є verificationToken
+  if (!user.verificationToken) {
+    user.verificationToken = uuidv4();
+  }
+
+  const verificationLink = `${BASE_URL}/users/verify/${user.verificationToken}`;
+  await sendVerificationEmail(user.email, verificationLink);
+
+  return res.status(200).json({ message: 'Verification email sent' });
 });
 
 const loginUser = errorWrapper(async (req, res, next) => {
@@ -47,12 +98,10 @@ const loginUser = errorWrapper(async (req, res, next) => {
     // якщо користувача з таким email не знайдено або пароль невірний
     return res.status(401).json({ message: 'Email or password is wrong' });
   }
-
   // перевірка, чи email користувача пройшов верифікацію
   if (!user.verify) {
     return res.status(401).json({ message: 'Email is not verified' });
   }
-
   // створення токена для автентифікації
   const token = generateToken({ userId: user._id });
   await User.findByIdAndUpdate(user._id, { token });
@@ -81,63 +130,14 @@ const getCurrentUser = errorWrapper(async (req, res, next) => {
 const updateAvatar = errorWrapper(async (req, res, next) => {
   const { file } = req;
   const userId = req.user._id;
+  User;
+
+  if (!file) {
+    return res.status(400).send('Avatar file is missing. Please attach a file to proceed.');
+  }
 
   const avatarUrl = await updateUserAvatar(userId, file);
   res.status(200).json({ avatarUrl });
-});
-
-const verifyUser = errorWrapper(async (req, res, next) => {
-  const { verificationToken } = req.params;
-
-  if (!verificationToken) {
-    return res.status(400).json({ message: 'Missing verification token' });
-  }
-
-  // знайти користувача за токеном верифікації
-  const user = await User.findOne({ verificationToken });
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
-  }
-
-  // якщо користувач вже пройшов верифікацію, повернути помилку
-  if (user.verify) {
-    return res.status(400).json({ message: 'Verification has already been passed' });
-  }
-
-  // встановити verificationToken в null і verify в true
-  user.verify = true;
-  user.verificationToken = null;
-  await user.save();
-
-  // повернути успішну відповідь
-  return res.status(200).json({ message: 'Verification successful' });
-});
-
-const resendVerificationEmail = errorWrapper(async (req, res, next) => {
-  const { email } = req.body;
-
-  if (!email) {
-    return res.status(400).json({ message: 'Missing required field: email' });
-  }
-
-  const user = await User.findOne({ email });
-
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
-  }
-
-  if (user.verify) {
-    return res.status(400).json({ message: 'Verification has already been passed' });
-  }
-
-  // перевірка, чи у користувача вже є verificationToken
-  if (!user.verificationToken) {
-    user.verificationToken = uuidv4();
-  }
-
-  await sendVerificationEmail(user.email, user.verificationToken);
-
-  return res.status(200).json({ message: 'Verification email sent' });
 });
 
 module.exports = {
