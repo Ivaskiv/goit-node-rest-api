@@ -27,7 +27,7 @@ userRouter.get('/current', authToken, getCurrentUser);
 
 userRouter.patch('/avatars', authToken, upload.single('avatar'), updateAvatar);
 
-userRouter.get('/verify/:verificationToken', validateBody(loginUserSchema), verifyUser);
+userRouter.get('/verify/:verificationToken', verifyUser);
 
 userRouter.post('/verify', validateBody(verifyUserSchema), resendVerificationEmail);
 
