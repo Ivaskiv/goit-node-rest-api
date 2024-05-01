@@ -63,7 +63,9 @@ const updateAvatar = errorWrapper(async (req, res, next) => {
   User;
 
   if (!file) {
-    return res.status(400).send('Avatar file is missing. Please attach a file to proceed.');
+    return res
+      .status(400)
+      .json({ message: 'Avatar file is missing. Please attach a file to proceed.' });
   }
 
   const avatarUrl = await updateUserAvatar(userId, file);
