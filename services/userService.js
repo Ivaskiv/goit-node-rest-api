@@ -22,8 +22,4 @@ const findUserByEmail = async email => {
   return User.findOne({ email });
 };
 
-const updateUserAvatar = async (userId, avatrUrl) => {
-  await User.findByIdAndUpdate(userId, { avatarURL: avatrUrl });
-};
-
-module.exports = { createUser, findUserByEmail, updateUserAvatar };
+module.exports = { createUser, findUserByEmail };

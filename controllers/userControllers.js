@@ -4,7 +4,11 @@ const User = require('../models/userModel');
 const { createUser, findUserByEmail } = require('../services/userService');
 const { generateToken } = require('../services/authService');
 const { errorWrapper } = require('../helpers/errorWrapper');
-const { updateUserAvatar } = require('../services/avatarService');
+const {
+  updateUserAvatar,
+  generateAvatarUrl,
+  processJimpAvatar,
+} = require('../services/avatarService');
 
 const userRegister = errorWrapper(async (req, res, next) => {
   const { email, password } = req.body;
@@ -14,12 +18,17 @@ const userRegister = errorWrapper(async (req, res, next) => {
   if (existingUser) {
     return res.status(409).json({ message: 'Email in use' });
   }
+
   const newUser = await createUser({ email, password });
+  //! згенерувати URL аватара за допомогою Gravatar та зберегти його в поле avatarURL
+  const avatarUrl = generateAvatarUrl(email);
+  await User.findByIdAndUpdate(newUser._id, { avatarURL: avatarUrl });
 
   res.status(201).json({
     user: {
       email: newUser.email,
       subscription: newUser.subscription,
+      avatarURL: avatarUrl,
     },
   });
 });
@@ -54,6 +63,7 @@ const getCurrentUser = errorWrapper(async (req, res, next) => {
   res.status(200).json({
     email: user.email,
     subscription: user.subscription,
+    avatarURL: user.avatarURL,
   });
 });
 
@@ -68,7 +78,9 @@ const updateAvatar = errorWrapper(async (req, res, next) => {
       .json({ message: 'Avatar file is missing. Please attach a file to proceed.' });
   }
 
-  const avatarUrl = await updateUserAvatar(userId, file);
+  const avatarUrl = await processJimpAvatar(file, userId);
+  // оновити поле avatarURL у користувача з _id === userId
+  await User.findByIdAndUpdate(userId, { avatarURL: avatarUrl });
   res.status(200).json({ avatarUrl });
 });
 
