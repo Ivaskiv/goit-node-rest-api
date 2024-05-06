@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const contactsRouter = require('./routes/contactsRouter');
 const userRouter = require('./routes/userRouter.js');
-const { authToken } = require('./helpers/authToken.js');
+const { authToken } = require('./middleware/authToken.js');
 const { loginUser } = require('./controllers/userControllers.js');
 require('dotenv').config();
 
@@ -32,6 +32,7 @@ app.listen(PORT, () => {
 
 app.use(cors());
 app.use(express.json());
+
 app.use(express.static('public'));
 
 // реєстрація маршруту для створення / оновлення токену

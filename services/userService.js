@@ -13,6 +13,7 @@ const createUser = async userData => {
     email: userData.email,
     password: hashedPassword,
     subscription: userData.subscription || 'starter',
+    avatarURL: userData.avatarURL,
   });
   return newUser.save();
 };

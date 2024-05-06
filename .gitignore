@@ -8,6 +8,7 @@
 /.prettier
 /.env
 example.html
+doc.js
 
 # testing
 /coverage
@@ -28,3 +29,10 @@ yarn-debug.log*
 yarn-error.log*
 
 package-lock.json
+
+tmp/**
+!tmp/.gitkeep
+
+public/**
+!public/avatars
+!public/avatars/.gitkeep
