@@ -4,11 +4,7 @@ const User = require('../models/userModel');
 const { createUser, findUserByEmail } = require('../services/userService');
 const { generateToken } = require('../services/authService');
 const { errorWrapper } = require('../helpers/errorWrapper');
-const {
-  updateUserAvatar,
-  generateAvatarUrl,
-  processJimpAvatar,
-} = require('../services/avatarService');
+const { generateAvatarUrl, processJimpAvatar } = require('../services/avatarService');
 
 const userRegister = errorWrapper(async (req, res, next) => {
   const { email, password } = req.body;
