@@ -11,7 +11,7 @@ const createContactSchema = Joi.object({
     })
     .required(),
   phone: Joi.string().required(),
-  //owner - посилання на користувача, який створив контакт.
+  //owner - посилання на користувача, який створив контакт
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
